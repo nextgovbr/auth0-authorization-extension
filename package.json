@@ -1,7 +1,7 @@
 {
-  "name": "next-authz-extension",
+  "name": "process-authz-extension",
   "version": "2.6.0",
-  "description": "next Authorization Extension",
+  "description": "process Authorization Extension",
   "engines": {
     "node": ">=6.10"
   },
