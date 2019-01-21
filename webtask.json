@@ -79,7 +79,7 @@
     "MONGODB_URL": {
       "description": "Next-Authorization",
       "required": true,
-      "example": "",
+      "example": "mongodb://",
       "visibleIf": {
         "STORAGE_TYPE": "mongodb"
       }
