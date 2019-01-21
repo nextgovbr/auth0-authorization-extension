@@ -26,7 +26,7 @@
       "description": "Choose the storage type for the database",
       "type": "select",
       "required": true,
-      "default": "webtask",
+      "default": "mongodb",
       "allowMultiple": false,
       "options": [
         {

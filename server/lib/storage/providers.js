@@ -8,8 +8,10 @@ import logger from '../logger';
 
 export function createProvider(storageContext) {
   switch (config('STORAGE_TYPE')) {
-    case 'mongodb': {
+    case 'mongodb':
+    default: {
       logger.info('Initializing the MongoDB Storage Provider.');
+      console.log(config('MONGODB_URL'));
       const mongoProvider = new MongoRecordProvider(config('MONGODB_URL'));
       mongoProvider.storageContext = {
         read: async () => {
@@ -41,8 +43,7 @@ export function createProvider(storageContext) {
       });
       return new BlobRecordProvider(context, { concurrentWrites: false });
     }
-    case 'webtask':
-    default: {
+    case 'webtask': {
       logger.info('Initializing the Webtask Storage Context.');
 
       const context = storageContext
