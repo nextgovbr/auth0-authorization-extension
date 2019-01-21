@@ -1,6 +1,6 @@
 {
-  "title": "Auth0 Authorization",
-  "name": "auth0-authz",
+  "title": "Next Authorization",
+  "name": "next-authz",
   "version": "2.6.0",
   "preVersion": "2.5.2",
   "author": "auth0",
@@ -79,7 +79,7 @@
     "MONGODB_URL": {
       "description": "Next-Authorization",
       "required": true,
-      "example": "mongodb://aprova:asdasdasdasdasdasd@ec2-***REMOVED***.sa-east-1.compute.amazonaws.com:27017/next-authorization",
+      "example": "",
       "visibleIf": {
         "STORAGE_TYPE": "mongodb"
       }
