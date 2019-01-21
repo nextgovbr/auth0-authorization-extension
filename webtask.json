@@ -36,6 +36,10 @@
         {
           "value": "s3",
           "text": "Amazon S3"
+        },
+        {
+          "value": "mongodb",
+          "text": "MongoDB"
         }
       ]
     },
@@ -70,6 +74,14 @@
       "example": "r3UOMBA......................",
       "visibleIf": {
         "STORAGE_TYPE": "s3"
+      }
+    },
+    "MONGODB_URL": {
+      "description": "Next-Authorization",
+      "required": true,
+      "example": "mongodb://aprova:asdasdasdasdasdasd@ec2-***REMOVED***.sa-east-1.compute.amazonaws.com:27017/next-authorization",
+      "visibleIf": {
+        "STORAGE_TYPE": "mongodb"
       }
     }
   }
