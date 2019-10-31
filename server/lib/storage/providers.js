@@ -1,18 +1,25 @@
 import path from 'path';
 import { S3StorageContext } from 'auth0-extension-s3-tools';
-import { FileStorageContext, WebtaskStorageContext, BlobRecordProvider } from 'auth0-extension-tools';
+import {
+  FileStorageContext,
+  WebtaskStorageContext,
+  BlobRecordProvider
+} from 'auth0-extension-tools';
 import { MongoRecordProvider } from 'auth0-extension-mongo-tools';
 
 import config from '../config';
+import configNext from '../configNext';
+
 import logger from '../logger';
 
 export function createProvider(storageContext) {
+  console.log('createProvider', config('STORAGE_TYPE'));
   switch (config('STORAGE_TYPE')) {
     case 'mongodb':
     default: {
       logger.info('Initializing the MongoDB Storage Provider.');
-      console.log(config('MONGODB_URL'));
-      const mongoProvider = new MongoRecordProvider(config('MONGODB_URL'));
+      console.log(configNext.get('MONGODB_URL'));
+      const mongoProvider = new MongoRecordProvider(configNext.get('MONGODB_URL'));
       mongoProvider.storageContext = {
         read: async () => {
           const groups = mongoProvider.getAll('groups');
@@ -47,8 +54,8 @@ export function createProvider(storageContext) {
       logger.info('Initializing the Webtask Storage Context.');
 
       const context = storageContext
-          ? new WebtaskStorageContext(storageContext, { force: 0 })
-          : new FileStorageContext(path.join(__dirname, '../../data.json'), { mergeWrites: true });
+        ? new WebtaskStorageContext(storageContext, { force: 0 })
+        : new FileStorageContext(path.join(__dirname, '../../data.json'), { mergeWrites: true });
       return new BlobRecordProvider(context, { concurrentWrites: false });
     }
   }

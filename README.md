@@ -14,11 +14,11 @@ Update the configuration file under `./server/config.json`:
 
 ```json
 {
-	"AUTHORIZE_API_KEY": "mysecret",
-	"EXTENSION_SECRET": "mysecret",
-	"AUTH0_DOMAIN": "me.auth0.com",
-	"AUTH0_CLIENT_ID": "myclientid",
-	"AUTH0_CLIENT_SECRET": "myclientsecret"
+  "AUTHORIZE_API_KEY": "mysecret",
+  "EXTENSION_SECRET": "mysecret",
+  "AUTH0_DOMAIN": "me.auth0.com",
+  "AUTH0_CLIENT_ID": "myclientid",
+  "AUTH0_CLIENT_SECRET": "myclientsecret"
 }
 ```
 
