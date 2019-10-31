@@ -19,9 +19,7 @@ export default class RuleStatus extends Component {
         <div className="col-xs-12">
           <div className="alert alert-warning">
             <strong>Warning</strong> {warning.message}
-            <div className="actions pull-right">
-              {warning.action}
-            </div>
+            <div className="actions pull-right">{warning.action}</div>
           </div>
         </div>
       </div>
@@ -40,29 +38,30 @@ export default class RuleStatus extends Component {
     }
 
     if (record && record.rule && !record.rule.exists) {
-      const buttonClasses = classNames({
-        btn: true,
-        'btn-sm': true,
-        'btn-warning': true,
-        hidden: this.context.router.isActive('configuration/rule')
-      });
-      return this.renderWarning({
-        message: 'The extension still needs to be configured before it can enforce your authorization logic.',
-        action: (<button onClick={this.props.goToConfiguration} className={buttonClasses}>Go to Configuration</button>)
-      });
     } else if (record && record.rule && !record.rule.enabled) {
       return this.renderWarning({
         message: 'The rule enforcing your authorization logic has been disabled.',
-        action: (<button onClick={this.props.goToRules} className="btn btn-sm btn-warning">Go to Rules</button>)
+        action: (
+          <button onClick={this.props.goToRules} className="btn btn-sm btn-warning">
+            Go to Rules
+          </button>
+        )
       });
     }
 
-    if (record && record.database &&
+    if (
+      record &&
+      record.database &&
       record.database.type === 'default' &&
-      record.database.size > process.env.WARN_DB_SIZE) {
+      record.database.size > process.env.WARN_DB_SIZE
+    ) {
       return this.renderWarning({
-        message: 'You\'ve almost reached the storage limit of 500 KB.',
-        action: (<button onClick={this.props.goToImportExport} className="btn btn-sm btn-warning">Go to Import/Export</button>)
+        message: "You've almost reached the storage limit of 500 KB.",
+        action: (
+          <button onClick={this.props.goToImportExport} className="btn btn-sm btn-warning">
+            Go to Import/Export
+          </button>
+        )
       });
     }
 

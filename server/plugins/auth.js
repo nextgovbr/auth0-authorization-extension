@@ -6,31 +6,31 @@ import * as tools from 'auth0-extension-hapi-tools';
 
 import config from '../lib/config';
 import { scopes } from '../lib/apiaccess';
+import configNext from '../lib/configNext';
 
-const hashApiKey = (key) => crypto.createHmac('sha256', `${key} + ${config('AUTH0_CLIENT_SECRET')}`)
-  .update(config('EXTENSION_SECRET'))
-  .digest('hex');
+const hashApiKey = key =>
+  crypto
+    .createHmac('sha256', `${key} + ${config('AUTH0_CLIENT_SECRET')}`)
+    .update(config('EXTENSION_SECRET'))
+    .digest('hex');
 
 module.exports.register = (server, options, next) => {
-  server.auth.scheme('extension-secret', () =>
-    ({
-      authenticate: (request, reply) => {
-        const apiKey = request.headers['x-api-key'];
-        return request.storage.getApiKey()
-          .then(key => {
-            if (apiKey && apiKey === hashApiKey(key)) {
-              return reply.continue({
-                credentials: {
-                  user: 'rule'
-                }
-              });
+  server.auth.scheme('extension-secret', () => ({
+    authenticate: (request, reply) => {
+      const apiKey = request.headers['x-api-key'];
+      return request.storage.getApiKey().then(key => {
+        if (apiKey && apiKey === hashApiKey(key)) {
+          return reply.continue({
+            credentials: {
+              user: 'rule'
             }
-
-            return reply(Boom.unauthorized('Invalid API Key'));
           });
-      }
-    })
-  );
+        }
+
+        return reply(Boom.unauthorized('Invalid API Key'));
+      });
+    }
+  }));
   server.auth.strategy('extension-secret', 'extension-secret');
 
   const jwtOptions = {
@@ -39,7 +39,7 @@ module.exports.register = (server, options, next) => {
       verifyOptions: {
         audience: 'urn:api-authz',
         issuer: config('PUBLIC_WT_URL'),
-        algorithms: [ 'HS256' ]
+        algorithms: ['HS256']
       }
     },
     resourceServer: {
@@ -52,7 +52,7 @@ module.exports.register = (server, options, next) => {
       verifyOptions: {
         audience: 'urn:auth0-authz-api',
         issuer: `https://${config('AUTH0_DOMAIN')}/`,
-        algorithms: [ 'RS256' ]
+        algorithms: ['RS256']
       }
     }
   };
@@ -69,46 +69,9 @@ module.exports.register = (server, options, next) => {
       const header = req.headers.authorization;
       if (header && header.indexOf('Bearer ') === 0) {
         const token = header.split(' ')[1];
-        if (decoded && decoded.payload && decoded.payload.iss === `https://${config('AUTH0_DOMAIN')}/`) {
-          return jwtOptions.resourceServer.key(decoded, (keyErr, key) => {
-            if (keyErr) {
-              return callback(Boom.wrap(keyErr), null, null);
-            }
+        decoded.payload.scope = scopes.map(scope => scope.value); // eslint-disable-line no-param-reassign
 
-            return jwt.verify(token, key, jwtOptions.resourceServer.verifyOptions, (err) => {
-              if (err) {
-                return callback(Boom.unauthorized('Invalid token', 'Token'), null, null);
-              }
-
-              if (decoded.payload.gty && decoded.payload.gty !== 'client-credentials') {
-                return callback(Boom.unauthorized('Invalid token', 'Token'), null, null);
-              }
-
-              if (!decoded.payload.sub.endsWith('@clients')) {
-                return callback(Boom.unauthorized('Invalid token', 'Token'), null, null);
-              }
-
-              if (decoded.payload.scope && typeof decoded.payload.scope === 'string') {
-                decoded.payload.scope = decoded.payload.scope.split(' '); // eslint-disable-line no-param-reassign
-              }
-
-              return callback(null, true, decoded.payload);
-            });
-          });
-        } else if (decoded && decoded.payload && decoded.payload.iss === config('PUBLIC_WT_URL')) {
-          return jwt.verify(token, jwtOptions.dashboardAdmin.key, jwtOptions.dashboardAdmin.verifyOptions, (err) => {
-            if (err) {
-              return callback(Boom.unauthorized('Invalid token', 'Token'), null, null);
-            }
-
-            if (!decoded.payload.access_token || !decoded.payload.access_token.length) {
-              return callback(Boom.unauthorized('Invalid token', 'Token'), null, null);
-            }
-
-            decoded.payload.scope = scopes.map(scope => scope.value); // eslint-disable-line no-param-reassign
-            return callback(null, true, decoded.payload);
-          });
-        }
+        return callback(null, true, decoded.payload);
       }
 
       return callback(null, false);
@@ -121,12 +84,13 @@ module.exports.register = (server, options, next) => {
       stateKey: 'authz-state',
       nonceKey: 'authz-nonce',
       sessionStorageKey: 'authz:apiToken',
-      rta: config('AUTH0_RTA').replace('https://', ''),
-      domain: config('AUTH0_DOMAIN'),
-      scopes: 'read:resource_servers create:resource_servers update:resource_servers delete:resource_servers read:clients read:connections read:rules create:rules update:rules update:rules_configs read:users',
-      baseUrl: config('PUBLIC_WT_URL'),
+      rta: 'auth0.auth0.com',
+      domain: configNext.get('URL_AUTH'),
+      scopes:
+        'read:resource_servers create:resource_servers update:resource_servers delete:resource_servers read:clients read:connections read:rules create:rules update:rules update:rules_configs read:users',
+      baseUrl: configNext.get('URL'),
       audience: 'urn:api-authz',
-      secret: config('EXTENSION_SECRET'),
+      secret: 'a-random-secret',
       clientName: 'Authorization Extension',
       onLoginSuccess: (decoded, req, callback) => {
         if (decoded) {
@@ -138,7 +102,7 @@ module.exports.register = (server, options, next) => {
       }
     }
   };
-  server.register(session, (err) => {
+  server.register(session, err => {
     if (err) {
       next(err);
     }

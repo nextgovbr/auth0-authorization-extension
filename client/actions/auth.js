@@ -7,7 +7,7 @@ import * as constants from '../constants';
 import { isTokenExpired, decodeToken } from '../utils/auth';
 
 export function login() {
-  window.location.href = window.config.BASE_URL + '/login';
+  window.location.href = window.config.BASE_URL + '/entrar';
 
   return {
     type: constants.SHOW_LOGIN
@@ -15,7 +15,7 @@ export function login() {
 }
 
 export function logout() {
-  return (dispatch) => {
+  return dispatch => {
     sessionStorage.removeItem('authz:apiToken');
     window.location.href = window.config.BASE_URL + '/logout';
 
@@ -26,14 +26,13 @@ export function logout() {
 }
 
 export function loadCredentials() {
-  return (dispatch) => {
+  return dispatch => {
     const apiToken = sessionStorage.getItem('authz:apiToken');
     if (apiToken) {
       const decodedToken = decodeToken(apiToken);
       if (isTokenExpired(decodedToken)) {
         return;
       }
-
       axios.defaults.headers.common.Authorization = `Bearer ${apiToken}`;
 
       sessionStorage.setItem('authz:token', apiToken);
@@ -44,7 +43,6 @@ export function loadCredentials() {
           token: apiToken
         }
       });
-
       dispatch({
         type: constants.LOGIN_SUCCESS,
         payload: {

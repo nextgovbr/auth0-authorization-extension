@@ -6,7 +6,9 @@ import { urlHelpers } from 'auth0-extension-hapi-tools';
 import config from '../lib/config';
 import template from '../views/index';
 
-const assembleHtmlRoute = (link) => ({
+import configNext from '../lib/configNext';
+
+const assembleHtmlRoute = link => ({
   method: 'GET',
   path: link,
   config: {
@@ -17,32 +19,36 @@ const assembleHtmlRoute = (link) => ({
     const cfg = {
       AUTH0_DOMAIN: config('AUTH0_DOMAIN'),
       AUTH0_CLIENT_ID: config('AUTH0_CLIENT_ID'),
-      BASE_URL: urlHelpers.getBaseUrl(req),
-      API_BASE: urlHelpers.getBaseUrl(req),
-      BASE_PATH: urlHelpers.getBasePath(req),
-      SEARCH_ENGINE: (config('AUTH0_RTA').replace('https://', '') !== 'auth0.auth0.com') ? 'v2' : 'v3'
+      BASE_URL: configNext.get('URL'),
+      API_BASE: configNext.get('URL'),
+      BASE_PATH: configNext.get('URL'),
+      SEARCH_ENGINE: config('AUTH0_RTA').replace('https://', '') !== 'auth0.auth0.com' ? 'v2' : 'v3'
     };
 
     // Development.
     if (process.env.NODE_ENV === 'development') {
-      return reply(ejs.render(template, {
-        config: {
-          ...cfg,
-          API_BASE: 'http://localhost:3000/'
-        },
-        assets: {
-          app: 'http://localhost:3000/app/bundle.js'
-        }
-      }));
+      return reply(
+        ejs.render(template, {
+          config: {
+            ...cfg,
+            API_BASE: configNext.get('URL')
+          },
+          assets: {
+            app: configNext.get('URL') + '/app/bundle.js'
+          }
+        })
+      );
     }
 
     // Render from CDN.
     const clientVersion = config('CLIENT_VERSION');
     if (clientVersion) {
-      return reply(ejs.render(template, {
-        config: cfg,
-        assets: { version: clientVersion }
-      }));
+      return reply(
+        ejs.render(template, {
+          config: cfg,
+          assets: { version: clientVersion }
+        })
+      );
     }
 
     // Render locally.
@@ -79,6 +85,7 @@ const assembleHtmlRoute = (link) => ({
 const clientRoutes = [
   '/',
   '/api',
+  '/entrar',
   '/configuration',
   '/configuration/rule',
   '/configuration/api',

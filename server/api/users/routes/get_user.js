@@ -1,12 +1,14 @@
 import Joi from 'joi';
+import axios from 'axios';
+import configNext from '../../../lib/configNext';
 
-module.exports = (server) => ({
+module.exports = server => ({
   method: 'GET',
   path: '/api/users/{id}',
   config: {
     auth: {
-      strategies: [ 'jwt' ],
-      scope: [ 'read:users' ]
+      strategies: ['jwt'],
+      scope: ['read:users']
     },
     description: 'Get a single user based on its unique identifier.',
     validate: {
@@ -14,12 +16,18 @@ module.exports = (server) => ({
         id: Joi.string().required()
       }
     },
-    pre: [
-      server.handlers.managementClient
-    ]
+    pre: []
   },
-  handler: (req, reply) =>
-    req.pre.auth0.users.get({ id: req.params.id })
-      .then(user => reply(user))
-      .catch(err => reply.error(err))
+  handler: (req, reply) => {
+    console.log(req.params.id);
+    return axios
+      .get(configNext.get('URL_AUTH') + '/api/v2/users/' + encodeURI(req.params.id))
+      .then(user =>
+        reply({
+          ...user.data,
+          id: user.data._id
+        })
+      )
+      .catch(err => reply.error(err));
+  }
 });

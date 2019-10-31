@@ -1,12 +1,12 @@
 import Joi from 'joi';
 
-module.exports = (server) => ({
+module.exports = server => ({
   method: 'GET',
   path: '/api/applications/{clientId}',
   config: {
     auth: {
-      strategies: [ 'jwt' ],
-      scope: [ 'read:applications' ]
+      strategies: ['jwt'],
+      scope: ['read:applications']
     },
     description: 'Get a single application based on its Client ID.',
     validate: {
@@ -14,12 +14,11 @@ module.exports = (server) => ({
         clientId: Joi.string().required()
       }
     },
-    pre: [
-      server.handlers.managementClient
-    ]
+    pre: []
   },
   handler: (req, reply) =>
-    req.pre.auth0.clients.get({ client_id: req.params.clientId })
+    req.pre.auth0.clients
+      .get({ client_id: req.params.clientId })
       .then(client => reply(client))
       .catch(err => reply.error(err))
 });
