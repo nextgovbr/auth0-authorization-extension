@@ -1,19 +1,17 @@
 import generateApiKey from '../../../lib/generateApiKey';
 
-module.exports = (server) => ({
+module.exports = server => ({
   method: 'PATCH',
   path: '/api/configuration/rotate-apikey',
   config: {
     auth: {
-      strategies: [ 'jwt' ],
-      scope: [ 'update:configuration' ]
+      strategies: ['jwt'],
+      scope: ['update:configuration']
     },
-    pre: [
-      server.handlers.managementClient
-    ]
+    pre: []
   },
   handler: (req, reply) =>
     generateApiKey(req.storage, req.pre.auth0)
-      .then((hash) => reply({ hash }))
+      .then(hash => reply({ hash }))
       .catch(err => reply.error(err))
 });

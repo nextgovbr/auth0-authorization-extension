@@ -14,7 +14,7 @@ export default function RequireAuthentication(InnerComponent) {
 
     requireAuthentication() {
       if (!this.props.auth.isAuthenticated && !this.props.auth.isAuthenticating) {
-        window.location.href = `${window.config.BASE_URL}/login`;
+        window.location.href = `${window.config.BASE_URL}/entrar`;
       }
     }
 
@@ -27,5 +27,8 @@ export default function RequireAuthentication(InnerComponent) {
     }
   }
 
-  return connect((state) => ({ auth: state.auth.toJS() }), { push })(RequireAuthenticationContainer);
+  return connect(
+    state => ({ auth: state.auth.toJS() }),
+    { push }
+  )(RequireAuthenticationContainer);
 }

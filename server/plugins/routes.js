@@ -1,6 +1,7 @@
 import config from '../lib/config';
 
 module.exports.register = (server, options, next) => {
+  server.handlers = {};
   server.route(require('../api/policy/routes/post_user')(server));
   server.route(require('../api/applications/routes/get_application')(server));
   server.route(require('../api/applications/routes/get_applications')(server));
@@ -61,7 +62,8 @@ module.exports.register = (server, options, next) => {
     method: 'GET',
     path: '/admins/login',
     config: { auth: false },
-    handler: (request, reply) => reply('Redirecting to login page...').redirect(`${config('PUBLIC_WT_URL')}/login`)
+    handler: (request, reply) =>
+      reply('Redirecting to login page...').redirect(`${config('PUBLIC_WT_URL')}/login`)
   });
   next();
 };

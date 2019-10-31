@@ -1,9 +1,9 @@
-import React from 'react';  // eslint-disable-line no-unused-vars
-import { Router, Route, IndexRedirect } from 'react-router';  // eslint-disable-line no-unused-vars
+import React from 'react'; // eslint-disable-line no-unused-vars
+import { Router, Route, IndexRedirect } from 'react-router'; // eslint-disable-line no-unused-vars
 
 import * as containers from './containers';
 
-export default (history) =>
+export default history => (
   <Router history={history}>
     <Route path="/" component={containers.RequireAuthentication(containers.App)}>
       <IndexRedirect to="/users" />
@@ -28,5 +28,6 @@ export default (history) =>
       </Route>
       <Route path="/configuration/api" component={containers.API} />
     </Route>
-    <Route path="/login" component={containers.Login} />
-  </Router>;
+    <Route path="entrar" component={containers.Login} />
+  </Router>
+);

@@ -21,8 +21,8 @@ axios.defaults.baseURL = window.config.API_BASE;
 const history = useRouterHistory(createHistory)({
   basename: window.config.BASE_PATH || ''
 });
-
-const store = configureStore([ routerMiddleware(history) ], { });
+console.log('START REACT');
+const store = configureStore([routerMiddleware(history)], {});
 const reduxHistory = syncHistoryWithStore(history, store);
 
 // Check if the rule is enabled.
@@ -41,9 +41,7 @@ store.dispatch(loadCredentials());
 
 // Render application.
 ReactDOM.render(
-  <Provider store={store}>
-    {routes(reduxHistory)}
-  </Provider>,
+  <Provider store={store}>{routes(reduxHistory)}</Provider>,
   document.getElementById('app')
 );
 
