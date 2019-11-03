@@ -4,8 +4,7 @@ const WebpackDevServer = require('webpack-dev-server');
 
 const config = require('./config.dev.js');
 const logger = require('../../server/lib/logger');
-
-import configNext from '../../server/lib/configNext';
+const configNext = require('../../server/lib/configNext.js');
 
 // Overwrite logger.
 logger.debug = function debug() {
