@@ -1,5 +1,20 @@
 # Auth0 Authorization Extension
 
+## Prefeituras considerações
+
+Deve ser adicionado um arquivo de configurações no seguintes diretórios:
+```config/default.json``` e ```production.json```.
+Com o seguinte conteúdo: 
+```
+{
+  "MONGODB_URL": "mongodb://",
+  "URL": "http://prefeitura:3020",
+  "HOST": "prefeitura",
+  "PORT": "3020",
+  "URL_AUTH": "http://prefeitura:3200/auth"
+}
+```
+
 ## Running in Production
 
 ```bash
