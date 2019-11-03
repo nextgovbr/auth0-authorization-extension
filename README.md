@@ -1,7 +1,8 @@
-# Auth0 Authorization Extension
+# Authorization Service
 
-## Prefeituras considerações
+## Prefeituras.net considerações
 
+É utilizado o pacote https://www.npmjs.com/package/config.
 Deve ser adicionado um arquivo de configurações no seguintes diretórios:
 ```config/default.json``` e ```production.json```.
 Com o seguinte conteúdo: 
