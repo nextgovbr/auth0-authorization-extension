@@ -10,7 +10,7 @@ class LoginContainer extends Component {
     );
     let user = await axios
       .post(
-        `/auth/api/v2/login`,
+        `http://prefeitura:3200/auth/api/v2/login`,
         {
           username: document.getElementsByName('email')[0].value,
           password: document.getElementsByName('password')[0].value
