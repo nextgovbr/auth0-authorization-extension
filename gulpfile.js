@@ -4,8 +4,7 @@ const gulp = require('gulp');
 const util = require('gulp-util');
 const open = require('open');
 const nodemon = require('gulp-nodemon');
-
-import configNext from '../configNext';
+const configNext = require('./server/lib/configNext.js');
 
 gulp.task('run', () => {
   nodemon({
