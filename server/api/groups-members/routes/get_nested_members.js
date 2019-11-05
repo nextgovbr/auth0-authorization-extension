@@ -42,9 +42,11 @@ module.exports = server => ({
         const currentAndChildGroups = getChildGroups(groups, [group]);
         return getMembers(currentAndChildGroups);
       })
+      .then(users => reply([]))
+
       .then(members => {
         const userIds = members ? members.map(member => member.userId) : [];
-
+        console.log('userIds', userIds);
         return getUsersById(req.pre.auth0, userIds, req.query.page, req.query.per_page).then(
           data => {
             const total = members.length;
