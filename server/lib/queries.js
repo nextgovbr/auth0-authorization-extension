@@ -4,16 +4,18 @@ import Promise from 'bluebird';
 import memoizer from 'lru-memoizer';
 import apiCall from './apiCall';
 
-const avoidBlock = action => (...args) => new Promise((resolve, reject) => {
-  setImmediate(() => {
-    try {
-      resolve(action(...args));
-    } catch(e) {
-      reject(e);
-  }});
-});
+const avoidBlock = action => (...args) =>
+  new Promise((resolve, reject) => {
+    setImmediate(() => {
+      try {
+        resolve(action(...args));
+      } catch (e) {
+        reject(e);
+      }
+    });
+  });
 
-const compact = (entity) => ({
+const compact = entity => ({
   _id: entity._id,
   name: entity.name,
   description: entity.description
@@ -24,14 +26,16 @@ const compact = (entity) => ({
  */
 export const getConnectionsCached = memoizer({
   load: (auth0, callback) => {
-    apiCall(auth0, auth0.connections.getAll, [ { fields: 'id,name,strategy' } ])
-      .then(connections => _.chain(connections)
-        .sortBy((conn) => conn.name.toLowerCase())
-        .value())
+    apiCall(auth0, auth0.connections.getAll, [{ fields: 'id,name,strategy' }])
+      .then(connections =>
+        _.chain(connections)
+          .sortBy(conn => conn.name.toLowerCase())
+          .value()
+      )
       .then(connections => callback(null, connections))
       .catch(err => callback(err));
   },
-  hash: (auth0) => auth0.hash || 'connections',
+  hash: auth0 => auth0.hash || 'connections',
   max: 100,
   maxAge: nconf.get('DATA_CACHE_MAX_AGE')
 });
@@ -47,7 +51,7 @@ export const getPermissionsCached = memoizer({
       })
       .catch(err => callback(err));
   },
-  hash: (db) => db.hash || 'permissions',
+  hash: db => db.hash || 'permissions',
   max: 100,
   maxAge: nconf.get('DATA_CACHE_MAX_AGE')
 });
@@ -63,7 +67,7 @@ export const getRolesCached = memoizer({
       })
       .catch(err => callback(err));
   },
-  hash: (db) => db.hash || 'roles',
+  hash: db => db.hash || 'roles',
   max: 100,
   maxAge: nconf.get('DATA_CACHE_MAX_AGE')
 });
@@ -79,7 +83,7 @@ export const getGroupsCached = memoizer({
       })
       .catch(err => callback(err));
   },
-  hash: (db) => db.hash || 'groups',
+  hash: db => db.hash || 'groups',
   max: 100,
   maxAge: nconf.get('DATA_CACHE_MAX_AGE')
 });
@@ -96,7 +100,7 @@ export const getMappingsWithNames = (auth0, groupMappings) =>
 
       const mappings = [];
       groupMappings.forEach(m => {
-        const connection = _.find(connections, { name: m.connectionName });
+        const connection = _.find(connections, {});
         if (connection) {
           const currentMapping = m;
           currentMapping.connectionName = `${connection.name} (${connection.strategy})`;
@@ -115,7 +119,7 @@ export const getChildGroups = (groups, selectedGroups) => {
   const groupsFlat = [];
 
   // Recursive method to find roles.
-  const findGroups = (groupId) => {
+  const findGroups = groupId => {
     // Only process each role once.
     if (groupsFlat.indexOf(groupId) === -1) {
       groupsFlat.push(groupId);
@@ -123,7 +127,7 @@ export const getChildGroups = (groups, selectedGroups) => {
       // Process the child groups.
       const group = _.find(groups, { _id: groupId });
       if (group && group.nested) {
-        _.forEach(group.nested, (nestedId) => {
+        _.forEach(group.nested, nestedId => {
           findGroups(nestedId);
         });
       }
@@ -134,7 +138,7 @@ export const getChildGroups = (groups, selectedGroups) => {
   selectedGroups.forEach(g => findGroups(g._id));
 
   // Return the groups.
-  return _.filter(groups, (g) => groupsFlat.indexOf(g._id) > -1);
+  return _.filter(groups, g => groupsFlat.indexOf(g._id) > -1);
 };
 
 /*
@@ -144,13 +148,13 @@ export const getParentGroups = (groups, selectedGroups) => {
   const groupsFlat = [];
 
   // Recursive method to find roles.
-  const findGroups = (groupId) => {
+  const findGroups = groupId => {
     // Only process each role once.
     if (groupsFlat.indexOf(groupId) === -1) {
       groupsFlat.push(groupId);
 
       // Process the parent groups.
-      const parentGroups = _.filter(groups, (group) => _.includes(group.nested || [], groupId));
+      const parentGroups = _.filter(groups, group => _.includes(group.nested || [], groupId));
       parentGroups.forEach(g => findGroups(g._id));
     }
   };
@@ -159,7 +163,7 @@ export const getParentGroups = (groups, selectedGroups) => {
   selectedGroups.forEach(g => findGroups(g._id));
 
   // Return the groups.
-  return _.filter(groups, (g) => groupsFlat.indexOf(g._id) > -1);
+  return _.filter(groups, g => groupsFlat.indexOf(g._id) > -1);
 };
 
 /*
@@ -167,7 +171,7 @@ export const getParentGroups = (groups, selectedGroups) => {
  */
 export const getRolesForGroups = (selectedGroups, selectedRoles) => {
   const result = [];
-  const groups = { };
+  const groups = {};
   selectedGroups.forEach(group => {
     if (group.roles) {
       group.roles.forEach(role => {
@@ -179,7 +183,8 @@ export const getRolesForGroups = (selectedGroups, selectedRoles) => {
   });
 
   selectedRoles.forEach(role => {
-    if (groups[role._id]) { // eslint-disable-line no-underscore-dangle
+    if (groups[role._id]) {
+      // eslint-disable-line no-underscore-dangle
       result.push({ role, group: groups[role._id] }); // eslint-disable-line no-underscore-dangle
     }
   });
@@ -191,33 +196,32 @@ export const getRolesForGroups = (selectedGroups, selectedRoles) => {
  * Get all roles for a user.
  */
 export const getRolesForUser = (database, userId) =>
-  database.getGroups()
+  database
+    .getGroups()
     .then(groups => {
       // get all groups user belong to
-      const userGroups = _.filter(groups, (group) => _.includes(group.members, userId));
+      const userGroups = _.filter(groups, group => _.includes(group.members, userId));
       return getParentGroups(groups, userGroups)
         .filter(group => group.roles && group.roles.length)
         .map(group => group.roles); // return roles for user's groups and their parents
     })
     .then(roles => _.uniq(_.flattenDeep(roles)))
     .then(roleIds =>
-      database.getRoles()
-        .then(roles => {
-          const groupRoles = _.filter(roles, role => _.includes(roleIds, role._id));
-          const userRoles = _.filter(roles, role => role.users && _.includes(role.users, userId));
-          return _.uniq([ ...groupRoles, ...userRoles ], '_id');
-        })
+      database.getRoles().then(roles => {
+        const groupRoles = _.filter(roles, role => _.includes(roleIds, role._id));
+        const userRoles = _.filter(roles, role => role.users && _.includes(role.users, userId));
+        return _.uniq([...groupRoles, ...userRoles], '_id');
+      })
     );
 
 /*
  * Get all permissions for list of roles.
  */
 export const getPermissionsForRoles = (database, userRoles) =>
-  database.getPermissions()
-    .then(permissions => {
-      const permIds = _.flattenDeep(_.map(userRoles, role => role.permissions));
-      return permissions.filter(permission => _.includes(permIds, permission._id));
-    });
+  database.getPermissions().then(permissions => {
+    const permIds = _.flattenDeep(_.map(userRoles, role => role.permissions));
+    return permissions.filter(permission => _.includes(permIds, permission._id));
+  });
 
 /*
  * Get all permissions for list of roles, grouped by role.
@@ -230,14 +234,18 @@ export const getPermissionsByRoles = (database, roles) =>
       }
 
       const rolesList = [];
-      _.forEach(roles, (role) => {
-        const rolePermissions = permissions.filter(permission => _.includes(role.permissions, permission._id));
+      _.forEach(roles, role => {
+        const rolePermissions = permissions.filter(permission =>
+          _.includes(role.permissions, permission._id)
+        );
 
         rolesList.push({
           ...role,
-          permissions: _.map(rolePermissions, permission =>
-            ({ _id: permission._id, name: permission.name, description: permission.description })
-          )
+          permissions: _.map(rolePermissions, permission => ({
+            _id: permission._id,
+            name: permission.name,
+            description: permission.description
+          }))
         });
       });
 
@@ -248,8 +256,8 @@ export const getPermissionsByRoles = (database, roles) =>
 /*
  * Resolve all users for a list of groups.
  */
-export const getMembers = (selectedGroups) => {
-  const users = { };
+export const getMembers = selectedGroups => {
+  const users = {};
 
   // Process the user's groups.
   selectedGroups.forEach(g => {
@@ -280,7 +288,7 @@ const matchMapping = (mapping, connectionName, groupMemberships) =>
  */
 const matchMappings = (mappings, connectionName, groupMemberships) =>
   mappings &&
-    _.filter(mappings, (mapping) => matchMapping(mapping, connectionName, groupMemberships)).length > 0;
+  _.filter(mappings, mapping => matchMapping(mapping, connectionName, groupMemberships)).length > 0;
 
 /*
  * Calculate dynamic group memberships.
@@ -295,7 +303,7 @@ export function getDynamicUserGroups(db, connectionName, groupMemberships, allGr
       return resolve([]);
     }
 
-    const getGroups = (cb) => {
+    const getGroups = cb => {
       if (allGroups && allGroups.length) {
         return cb(null, allGroups);
       }
@@ -308,7 +316,9 @@ export function getDynamicUserGroups(db, connectionName, groupMemberships, allGr
         return reject(err);
       }
 
-      const dynamicGroups = _.filter(groups, (group) => matchMappings(group.mappings, connectionName, groupMemberships));
+      const dynamicGroups = _.filter(groups, group =>
+        matchMappings(group.mappings, connectionName, groupMemberships)
+      );
       return resolve(dynamicGroups);
     });
   });
@@ -318,8 +328,12 @@ export function getDynamicUserGroups(db, connectionName, groupMemberships, allGr
  * Get the groups a user belongs to.
  */
 export function getUserGroups(db, userId, connectionName, groupMemberships) {
-  if (!Array.isArray(groupMemberships) || groupMemberships === undefined || groupMemberships === null) {
-    groupMemberships = [ ];
+  if (
+    !Array.isArray(groupMemberships) ||
+    groupMemberships === undefined ||
+    groupMemberships === null
+  ) {
+    groupMemberships = [];
   }
 
   return new Promise((resolve, reject) => {
@@ -329,10 +343,15 @@ export function getUserGroups(db, userId, connectionName, groupMemberships) {
       }
 
       // Get the direct groups memberships of a user.
-      const userGroups = _.filter(groups, (group) => _.includes(group.members, userId));
+      const userGroups = _.filter(groups, group => _.includes(group.members, userId));
 
       // Calculate the dynamic user groups based on external and internal group memberships.
-      return getDynamicUserGroups(db, connectionName, [ ...groupMemberships, ...(userGroups.map(g => g.name)) ], groups)
+      return getDynamicUserGroups(
+        db,
+        connectionName,
+        [...groupMemberships, ...userGroups.map(g => g.name)],
+        groups
+      )
         .then(dynamicGroups => {
           const nestedGroups = getParentGroups(groups, _.union(userGroups, dynamicGroups));
           return resolve(nestedGroups);
@@ -357,10 +376,12 @@ export function getGroupExpanded(db, groupId) {
           return reject(err);
         }
         const currentGroup = _.find(groups, { _id: groupId });
-        const parentGroups = getParentGroups(groups, [ currentGroup ]).filter(g => g._id !== currentGroup._id);
+        const parentGroups = getParentGroups(groups, [currentGroup]).filter(
+          g => g._id !== currentGroup._id
+        );
 
-        const roles = getRolesForGroups([ currentGroup, ...parentGroups ], allRoles).map(r => r.role);
-        const formatRole = (r) => ({
+        const roles = getRolesForGroups([currentGroup, ...parentGroups], allRoles).map(r => r.role);
+        const formatRole = r => ({
           _id: r._id,
           name: r.name,
           description: r.description,
@@ -369,13 +390,14 @@ export function getGroupExpanded(db, groupId) {
           permissions: r.permissions && r.permissions.map(compact)
         });
 
-        return getPermissionsByRoles(db, roles)
-          .then((rolesList) => resolve({
+        return getPermissionsByRoles(db, roles).then(rolesList =>
+          resolve({
             _id: currentGroup._id,
             name: currentGroup.name,
             description: currentGroup.description,
             roles: rolesList.map(formatRole)
-          }));
+          })
+        );
       });
     });
   });
@@ -398,7 +420,7 @@ export function getGroupsExpanded(db, groups) {
 
         const groupsWithParents = getParentGroups(allGroups, groups);
         const roles = getRolesForGroups(groupsWithParents, allRoles).map(r => r.role);
-        const formatRole = (r) => ({
+        const formatRole = r => ({
           _id: r._id,
           name: r.name,
           description: r.description,
@@ -407,11 +429,12 @@ export function getGroupsExpanded(db, groups) {
           permissions: r.permissions && r.permissions.map(compact)
         });
 
-        return getPermissionsByRoles(db, roles)
-          .then((rolesList) => resolve({
+        return getPermissionsByRoles(db, roles).then(rolesList =>
+          resolve({
             groups: groupsWithParents.map(compact),
             roles: rolesList.map(formatRole)
-          }));
+          })
+        );
       });
     });
   });
@@ -426,37 +449,49 @@ export function getUserData(db, userId, clientId, connectionName, groupMembershi
     roles: []
   };
 
-  return db.provider.storageContext.read()
-    .then(data => {
-      const { groups = [], roles = [], permissions = [] } = data;
+  return db.provider.storageContext.read().then(data => {
+    const { groups = [], roles = [], permissions = [] } = data;
 
-      const userGroups = _.filter(groups, (group) => _.includes(group.members, userId));
+    const userGroups = _.filter(groups, group => _.includes(group.members, userId));
 
-      if (!Array.isArray(groupMemberships)) {
-        groupMemberships = [ ];
-      }
+    if (!Array.isArray(groupMemberships)) {
+      groupMemberships = [];
+    }
 
-      return avoidBlock(getDynamicUserGroups)(db, connectionName, [ ...groupMemberships, ...(userGroups.map(g => g.name)) ], groups)
-        .then(avoidBlock((dynamicGroups) => {
+    return avoidBlock(getDynamicUserGroups)(
+      db,
+      connectionName,
+      [...groupMemberships, ...userGroups.map(g => g.name)],
+      groups
+    )
+      .then(
+        avoidBlock(dynamicGroups => {
           const parentGroups = getParentGroups(groups, _.union(userGroups, dynamicGroups));
           result.groups = _.uniq(parentGroups.map(group => group.name));
           return parentGroups;
-        }))
-        .then(avoidBlock((allUserGroups) => {
+        })
+      )
+      .then(
+        avoidBlock(allUserGroups => {
           const clearRoles = getRolesForGroups(allUserGroups, roles).map(record => record.role);
           const directRoles = roles.filter(role => role.users && role.users.indexOf(userId) > -1);
-          const userRoles = [ ...clearRoles, ...directRoles ];
-          const relevantRoles = userRoles.filter(role => role.applicationId === clientId);
+          const userRoles = [...clearRoles, ...directRoles];
+          const relevantRoles = userRoles;
           result.roles = _.uniq(relevantRoles.map(role => role.name));
 
           return relevantRoles;
-        }))
-        .then(avoidBlock((relevantRoles) => {
+        })
+      )
+      .then(
+        avoidBlock(relevantRoles => {
           const permIds = _.flattenDeep(_.map(relevantRoles, role => role.permissions));
-          const userPermissions = permissions.filter(permission => _.includes(permIds, permission._id));
+          const userPermissions = permissions.filter(permission =>
+            _.includes(permIds, permission._id)
+          );
           result.permissions = _.uniq(userPermissions.map(permission => permission.name));
 
           return result;
-        }));
-    });
+        })
+      );
+  });
 }

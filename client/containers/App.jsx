@@ -38,18 +38,35 @@ class App extends Component {
         <div className="container">
           <div className="row">
             <Sidebar>
-              <SidebarItem icon={<UsersIcon className="item-image"/>} title="Users" route="/users" />
-              <SidebarItem icon={<GroupsIcon className="item-image"/>} title="Groups" route="/groups" />
-              <SidebarItem icon={<RolesIcon className="item-image"/>} title="Roles" route="/roles" />
-              <SidebarItem icon={<PermissionsIcon className="item-image"/>} title="Permissions" route="/permissions" />
+              <SidebarItem
+                icon={<UsersIcon className="item-image" />}
+                title="Usuários"
+                route="/users"
+              />
+              <SidebarItem
+                icon={<GroupsIcon className="item-image" />}
+                title="Grupos"
+                route="/groups"
+              />
+              <SidebarItem
+                icon={<RolesIcon className="item-image" />}
+                title="Regras"
+                route="/roles"
+              />
+              <SidebarItem
+                icon={<PermissionsIcon className="item-image" />}
+                title="Permissões"
+                route="/permissions"
+              />
             </Sidebar>
             <div id="content" className="col-xs-10">
-              <RuleStatus ruleStatus={this.props.ruleStatus}
+              <RuleStatus
+                ruleStatus={this.props.ruleStatus}
                 goToConfiguration={this.props.goToConfiguration}
                 goToRules={this.props.goToRules}
                 goToImportExport={this.props.goToImportExport}
               />
-              { this.props.children }
+              {this.props.children}
             </div>
           </div>
         </div>
@@ -66,4 +83,7 @@ function select(state) {
   };
 }
 
-export default connect(select, { logout, ...configurationActions })(App);
+export default connect(
+  select,
+  { logout, ...configurationActions }
+)(App);
