@@ -5,25 +5,29 @@ module.exports = () => ({
   path: '/api/groups/{id}/roles',
   config: {
     auth: {
-      strategies: [ 'jwt' ],
-      scope: [ 'update:groups' ]
+      strategies: ['jwt'],
+      scope: ['update:groups']
     },
     description: 'Add one or more roles to a group.',
-    tags: [ 'api' ],
+    tags: ['api'],
     validate: {
       options: {
         allowUnknown: false
       },
       params: {
-        id: Joi.string().guid().required()
+        id: Joi.string().required()
       },
-      payload: Joi.array().items(Joi.string().guid()).required().min(1)
+      payload: Joi.array()
+        .items(Joi.string())
+        .required()
+        .min(1)
     }
   },
   handler: (req, reply) => {
     const roles = req.payload;
 
-    req.storage.getGroup(req.params.id)
+    req.storage
+      .getGroup(req.params.id)
       .then(group => {
         if (!group.roles) {
           group.roles = [];

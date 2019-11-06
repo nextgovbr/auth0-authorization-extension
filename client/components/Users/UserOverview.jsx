@@ -1,7 +1,15 @@
 import React from 'react';
 import { findDOMNode } from 'react-dom';
 import { Button, ButtonToolbar, Nav, NavItem, Tabs, Tab } from 'react-bootstrap';
-import { Pagination, SectionHeader, BlankState, SearchBar, Error, TableTotals, LoadingPanel } from 'auth0-extension-ui';
+import {
+  Pagination,
+  SectionHeader,
+  BlankState,
+  SearchBar,
+  Error,
+  TableTotals,
+  LoadingPanel
+} from 'auth0-extension-ui';
 
 import UserGeneral from './UserGeneral';
 import UserFederated from './UserFederated';
@@ -15,17 +23,17 @@ class UserOverview extends React.Component {
     this.searchBarOptions = [
       {
         value: 'user',
-        title: 'User',
+        title: 'Nome',
         filterBy: ''
       },
       {
         value: 'email',
-        title: 'Email',
+        title: 'E-mail',
         filterBy: 'email'
       },
       {
         value: 'connection',
-        title: 'Connection',
+        title: 'Cidade',
         filterBy: 'identities.connection'
       }
     ];
@@ -79,7 +87,12 @@ class UserOverview extends React.Component {
         }
         description="It looks like you don't have any users yet! You'll need users to sign up through Auth0 first before you can assign them to groups."
       >
-        <a href="https://auth0.com/docs/extensions/authorization-extension" rel="noopener noreferrer" target="_blank" className="btn btn-transparent btn-md">
+        <a
+          href="https://auth0.com/docs/extensions/authorization-extension"
+          rel="noopener noreferrer"
+          target="_blank"
+          className="btn btn-transparent btn-md"
+        >
           Read more
         </a>
       </BlankState>
@@ -89,18 +102,20 @@ class UserOverview extends React.Component {
   render() {
     const { loading, error, users, total, fetchQuery, renderActions } = this.props;
 
-    if (!error && !users.length && !loading && ((!fetchQuery || !fetchQuery.length) && !total)) { return this.renderEmptyState(); }
+    if (!error && !users.length && !loading && ((!fetchQuery || !fetchQuery.length) && !total)) {
+      return this.renderEmptyState();
+    }
 
     return (
       <div>
         <Error message={error} />
-        <SectionHeader title="Users" description="Open a user to add them to a group or assign them to a role." />
+        <SectionHeader title="Usuários" description="Abre um usuário e lhe de acesso." />
 
         <UserGeneral />
         <div className="row" style={{ marginBottom: '20px' }}>
           <div className="col-xs-12">
             <SearchBar
-              placeholder="Search for users"
+              placeholder="Busque por usuários"
               searchOptions={this.searchBarOptions}
               handleKeyPress={this.onKeyPress}
               handleReset={this.onReset}
@@ -118,14 +133,15 @@ class UserOverview extends React.Component {
         </LoadingPanel>
         <div className="row">
           <div className="col-xs-12">
-            { process.env.PER_PAGE < total ?
+            {process.env.PER_PAGE < total ? (
               <Pagination
                 totalItems={total}
                 handlePageChange={this.handleUsersPageChange}
                 perPage={process.env.PER_PAGE}
-              /> :
-                <TableTotals currentCount={users.length} totalCount={total} />
-            }
+              />
+            ) : (
+              <TableTotals currentCount={users.length} totalCount={total} />
+            )}
           </div>
         </div>
       </div>

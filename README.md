@@ -1,4 +1,20 @@
-# Auth0 Authorization Extension
+# Authorization Service
+
+## Prefeituras.net considerações
+
+É utilizado o pacote https://www.npmjs.com/package/config.
+Deve ser adicionado um arquivo de configurações no seguintes diretórios:
+```config/default.json``` e ```production.json```.
+Com o seguinte conteúdo: 
+```
+{
+  "MONGODB_URL": "mongodb://",
+  "URL": "http://prefeitura:3020",
+  "HOST": "prefeitura",
+  "PORT": "3020",
+  "URL_AUTH": "http://prefeitura:3200/auth"
+}
+```
 
 ## Running in Production
 
@@ -14,11 +30,11 @@ Update the configuration file under `./server/config.json`:
 
 ```json
 {
-	"AUTHORIZE_API_KEY": "mysecret",
-	"EXTENSION_SECRET": "mysecret",
-	"AUTH0_DOMAIN": "me.auth0.com",
-	"AUTH0_CLIENT_ID": "myclientid",
-	"AUTH0_CLIENT_SECRET": "myclientsecret"
+  "AUTHORIZE_API_KEY": "mysecret",
+  "EXTENSION_SECRET": "mysecret",
+  "AUTH0_DOMAIN": "me.auth0.com",
+  "AUTH0_CLIENT_ID": "myclientid",
+  "AUTH0_CLIENT_SECRET": "myclientsecret"
 }
 ```
 

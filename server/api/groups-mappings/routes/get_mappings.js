@@ -1,27 +1,28 @@
 import Joi from 'joi';
 import { getMappingsWithNames } from '../../../lib/queries';
 
-module.exports = (server) => ({
+module.exports = server => ({
   method: 'GET',
   path: '/api/groups/{id}/mappings',
   config: {
     auth: {
-      strategies: [ 'jwt' ],
-      scope: [ 'read:groups' ]
+      strategies: ['jwt'],
+      scope: ['read:groups']
     },
     description: 'Get the mappings for a group.',
-    tags: [ 'api' ],
-    pre: [
-      server.handlers.managementClient
-    ],
+    tags: ['api'],
+    pre: [],
     validate: {
       params: {
-        id: Joi.string().guid().required()
+        id: Joi.string()
+          .guid()
+          .required()
       }
     }
   },
   handler: (req, reply) =>
-    req.storage.getGroup(req.params.id)
+    req.storage
+      .getGroup(req.params.id)
       .then(group => group.mappings || [])
       .then(mappings => getMappingsWithNames(req.pre.auth0, mappings))
       .then(mappings => reply(mappings))
